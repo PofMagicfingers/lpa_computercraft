@@ -1,0 +1,3 @@
+{
+	installPath = "/api/move"
+}
