@@ -1,6 +1,7 @@
 trackerDB = {}
 current_page = 0
 modemSide = "back"
+lang="fr"
 
 local isDebug = false
 
@@ -51,15 +52,31 @@ function delete_turtle(computer_key)
     term.clear()
     term.setCursorPos(1,1)
     print("")
-    print("Turtle : ")
+    if lang == "fr" then
+      print("Tortue : ")
+    else
+      print("Turtle : ")
+    end
     print(computer["name"])
     print("")
-    print("Are you sure you want to remove this turtle from the tracker ?")
+    if lang == "fr" then
+      print("Etes vous sur de vouloir supprimer cette tortue du tracker ?")
+    else
+      print("Are you sure you want to remove this turtle from the tracker?")
+    end
     print("")
-    print("The turtle will be added again when it moves...")
+    if lang == "fr" then
+      print("La tortue sera rajoutee de nouveau des qu'elle bougera...")
+    else
+      print("The turtle will be added again when it moves...")
+    end
     print("")
     print("")
-    print("Y for yes / N for No")
+    if lang == "fr" then
+      print("Y pour Oui (Yes) / N pour Non ")
+    else
+      print("Y for yes / N for No")
+    end
 
     local event, param1, param2, param3, param4 = os.pullEvent()
 
@@ -69,7 +86,7 @@ function delete_turtle(computer_key)
     else
       if event == "key" then
         if param1 == 21 then
-          print("Deleting turtle.")
+          debug("Deleting turtle.")
           trackerDB[computer_key] = nil
           return true
         else
@@ -88,20 +105,38 @@ function track_or_edit(computer_key)
   term.setCursorPos(1,1)
 
   print("")
-  print("Tracking turtle :")
+  if lang == "fr" then
+    print("Suivi de la tortue : ")
+  else
+    print("Tracking turtle:")
+  end
   print(" "..computer["name"])
-  print("Last known location :")
+  if lang == "fr" then
+    print("Derniere position connue :")
+  else
+    print("Last known location:")
+  end
   loc = computer["location"]
   if loc.x ~= nil and loc.y ~= nil and loc.z ~= nil then
     print(" "..math.ceil(loc.x)..", "..math.ceil(loc.z).."  ("..math.ceil(loc.y)..")")
   else
-    print("Unknown")
+    if lang == "fr" then
+      print("Inconnue")
+    else
+      print("Unknown")
+    end
   end
   print("")
   print("")
-  print("Press a key : ")
-  print(" X : Delete from tracker")
-  print(" B : Go back to menu")
+  if lang == "fr" then
+    print("Appuyez sur une touche : ")
+    print(" X : Supprimer du tracker")
+    print(" B : Retour au menu")
+  else
+    print("Press a key : ")
+    print(" X : Delete from tracker")
+    print(" B : Go back to menu")
+  end
 
   local event, param1, param2, param3, param4 = os.pullEvent()
 
@@ -164,7 +199,11 @@ function main()
   
   else
 
+  if lang == "fr" then
+    print("Aucune tortue n'envoie sa position, et pas de tortues dans la base de donnees.")
+  else
     print("No turtles sending its location, and no turtles in DB.")
+  end
 
   end
 
@@ -174,10 +213,17 @@ function main()
   end
 
   print("")
-  print("Press a key : ")
-  print(" 1-9 : Edit/track item")
-  print(" P   : Switch pages")
-  print(" Q   : Quit this program")
+  if lang == "fr" then
+    print("Appuyez sur une touche : ")
+    print(" 1-9 : Editer/Suivre")
+    print(" P   : Changer pages")
+    print(" Q   : Quitter")
+  else
+    print("Press a key : ")
+    print(" 1-9 : Edit/track turtle")
+    print(" P   : Switch pages")
+    print(" Q   : Quit this program")
+  end
   print("")
 
   local event, param1, param2, param3, param4 = os.pullEvent()
@@ -188,7 +234,11 @@ function main()
   else
     if event == "key" then
       if param1 == 16 then
-        print("Stopping tracker")
+        if lang == "fr" then
+          print("Stoppage du tracker")
+        else
+          print("Stopping tracker")
+        end
         return false
       else
         if param1 == 25 then
