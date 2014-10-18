@@ -6,7 +6,7 @@ local tArgs = { ... }
 local function termClear()
 	term.clear()
 	term.setCursorPos(1,1)
-    print( " LPA v1.0 BETA (#h8ZjhpU7)" )
+    print( " LPA v1.1 BETA (#h8ZjhpU7)" )
 	print( "---------------" )
     print("")
 end
