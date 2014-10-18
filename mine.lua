@@ -16,7 +16,7 @@ local iDirtosDir = {[0]="south", [1]="west", [2]="north", [3]="east"}
 local use_exclude_list = false
 local exclude_list = {}
 
-if turtle.inspect and fs.exists("mine.exclude")
+if turtle.inspect and fs.exists("mine.exclude") then
 	use_exclude_list = true
 	local h = fs.open("mine.exclude", "r")
 	line = h.readLine()
@@ -39,10 +39,10 @@ function turtleLeft()
 end
  
 function mine()                                 -- fonction qui compare et mine, tourne à droite et direction++
-	if use_exclude_list and turtle.inspect
+	if use_exclude_list and turtle.inspect then
 		block, info = turtle.inspect()
 		if block and type(info) == "table" and info["name"] then
-			if exclude_list[info["name"]] == true
+			if exclude_list[info["name"]] == true then
 				return
 			end
 		end
