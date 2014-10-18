@@ -1,3 +1,4 @@
+os.loadAPI("api/move")
 local profondeur = 0                                    -- indique de combien on a creusé
 local xPosition = 0                                             -- indique la position courante en x
 local zPosition = 0                                             -- indique la position courante en z
@@ -9,45 +10,44 @@ local orientation = -1
 
 local chest_orientation
 
+local sDirtoiDir = {south = 0, west = 1, north = 2, east = 3}
+local iDirtosDir = {[0]="south", [1]="west", [2]="north", [3]="east"}
+
+local use_exclude_list = false
+local exclude_list = {}
+
+if turtle.inspect and fs.exists("mine.exclude")
+	use_exclude_list = true
+	local h = fs.open("mine.exclude", "r")
+	line = h.readLine()
+	while line do exclude_list[line] = true ;  line = h.readLine() end
+	h.close()
+end
+
 function getOrientation()
-	if orientation == -1 then
-		loc1 = vector.new(gps.locate(2, false))
-		if not turtle.forward() then
-		    for j=1,6 do
-		            if not turtle.forward() then
-		                    turtle.dig()
-		         else break end
-		    end
-		end
-		loc2 = vector.new(gps.locate(2, false))
-		heading = loc2 - loc1
-		orientation = (heading.x + math.abs(heading.x) * 2) + (heading.z + math.abs(heading.z) * 3)
-	end
-
-	if orientation >= 4 then orientation = 0 end
-	if orientation <= 0 then orientation = 0 end
-
-	return orientation
+	local orient = turtle.getDir()
+	if orient ~= "north" and orient ~= "east" and orient ~= "west" and orient ~= "south" then orient = "north" end
+	return sDirtoiDir[orient]
 end
 
 function turtleRight()
-	if turtle.turnRight() then
-		orientation = orientation + 1
-		if orientation >= 4 then orientation = 0 end
-	end
+	turtle.turnRight()
 end
 
 function turtleLeft()
-	if turtle.turnLeft() then
-		orientation = orientation - 1
-		if orientation <= 0 then orientation = 4 end
-	end
+	turtle.turnLeft()
 end
  
 function mine()                                 -- fonction qui compare et mine, tourne à droite et direction++
-		turtle.dig()
-		turtleRight()
-		check_turtle_full()
+	if use_exclude_list and turtle.inspect
+		block, info = turtle.inspect()
+		if block and type(info) == "table" and info["name"] then
+			if exclude_list[info["name"]] == true
+				return
+			end
+		end
+	end
+	turtle.dig()
 end
  
 function verifFuel(first_slot, loop)                                    -- vérifie si on a assez de fuel (déplacements) en réserve.
@@ -65,12 +65,6 @@ function verifFuel(first_slot, loop)                                    -- véri
 			if loop then
 				while turtle.getFuelLevel() < 5 do
 					local x, y, z = gps.locate(5)
-
-					if x == nil then
-						print("Position inconue")
-					else
-						print("Position de la tortue : ",x," ",y," ",z)
-					end
 
 					print("J'ai faim !")
 					print("Donnez du carburant et appuyez sur une touche !")
@@ -150,9 +144,11 @@ function setOrientation(orientation)
 	-- 		end
 	-- 	end
 	-- end
-	while(getOrientation() ~= orientation) do -- juste au cas ou
-		turtleRight()
+
+	if orientation >= 0 and orientation <= 3 then
+		turtle.turnToDir(iDirtosDir[orientation])
 	end
+
 end
 
 function calcPlan()                                     -- calcule les emplacements des puits de minage
@@ -400,7 +396,9 @@ while p <= pmax do
 			print("En bas ! profondeur = "..profondeur)
 			for i=1,4 do
 				mine()
+				turtleRight()
 			end
+			check_turtle_full()
 			print("Fin du minage. En bas ?")
 		end
 

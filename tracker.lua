@@ -207,7 +207,7 @@ function main()
 
   end
 
-  if max_page > 0 then
+  if max_page and tonumber(max_page) > 0 then
     print("")
     print("Page "..tostring(tonumber(current_page)+1).."/"..max_page)
   end

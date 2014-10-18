@@ -24,7 +24,7 @@ dir = "north"
 chunkSlot = 2
 dirMoving = "forward"
 needInit = true
-local isDebug = true
+local isDebug = false
 local shouldPathFind = false
 local initializeCoordsWithGPS = true
 
@@ -125,7 +125,7 @@ turtle.down = function(...) return movement(down, -1, "down", ...) end
 fuel = turtle.refuel
 turtle.refuel = function(...) 
 	local arg = {...}
-	local amnt = tonumber(arg[1])
+	local amnt = tonumber(arg[1]) or 64
 	if fuel(amnt) then 
 		saveData() 
 		return true 
@@ -244,7 +244,7 @@ turtle.setCoordsWithGPS = function()
 			if loc2x ~= nil and loc2y ~= nil and loc2z ~= nil then
 				loc2 = vector.new(loc2x, loc2y, loc2z)
 				heading = loc2 - loc1
-				orientation = (heading.x + math.abs(heading.x) * 2) + (heading.z + math.abs(heading.z) * 3)
+				orientation = math.ceil((heading.x + math.abs(heading.x) * 2) + (heading.z + math.abs(heading.z) * 3))
 
 				if orientation >= 4 or orientation <= 0 then orientation = 0 end
 
