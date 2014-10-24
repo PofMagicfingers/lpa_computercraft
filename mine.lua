@@ -86,21 +86,12 @@ function check_turtle_full()
 end
 
 function empty_turtle()
-		local locationX = xPosition
-	local locationZ = zPosition
-	local locationY = profondeur
+	local locationX = turtle.getX()
+	local locationZ = turtle.getZ()
+	local locationY = turtle.getY()
 	local locationO = getOrientation()
 
-	while profondeur ~= 0 do
-		if turtle.detectUp() then turtle.digUp() end
-		turtle.up()
-		profondeur = profondeur-1
-		verifFuel()
-	end
-
-	deplacement(0,0)
-
-	setOrientation(chest_orientation)
+	deplacement(0, 0, 0, chest_orientation)
 
 	for slot=1,16 do
 		turtle.select(slot)
@@ -118,16 +109,7 @@ function empty_turtle()
 		end
 	end
 
-	deplacement(locationX, locationZ)
-
-	while profondeur ~= locationY do
-		if turtle.detectDown() then turtle.digDown() end
-		turtle.down()
-		profondeur = profondeur+1
-		verifFuel()
-	end
-   
-	setOrientation(locationO)
+	deplacement(locationX, locationY, locationZ, locationO)
 end
 
 function setOrientation(orientation)
@@ -151,7 +133,43 @@ function setOrientation(orientation)
 
 end
 
-function calcPlan()                                     -- calcule les emplacements des puits de minage
+function calcPlan(initial_orientation, direction)                                     -- calcule les emplacements des puits de minage
+		print("CALCPLAN WITH initial_orientation = "..initial_orientation.." and direction = "..direction.." !")
+		sleep(5)
+		local factorX, factorZ
+
+		if initial_orientation == "south" then
+			factorZ = 1
+			if direction == "right" then
+				factorX = -1
+			else
+				factorX = 1
+			end
+		end
+		if initial_orientation == "west" then
+			factorX = -1
+			if direction == "right" then
+				factorZ = -1
+			else
+				factorZ = 1
+			end
+		end
+		if initial_orientation == "north" then
+			factorZ = -1
+			if direction == "right" then
+				factorX = 1
+			else
+				factorX = -1
+			end
+		end
+		if initial_orientation == "east" then
+			factorX = 1
+			if direction == "right" then
+				factorZ = 1
+			else
+				factorZ = -1
+			end
+		end
 
 		local x, z, temp, xTemp
 		temp = 1
@@ -173,8 +191,8 @@ function calcPlan()                                     -- calcule les emplaceme
 
 				if x <= longueur then
 					plan[temp] = {}
-					plan[temp][1] = x
-					plan[temp][2] = z
+					plan[temp][1] = x*factorX
+					plan[temp][2] = z*factorZ
 					temp = temp + 1
  				end
 
@@ -183,8 +201,8 @@ function calcPlan()                                     -- calcule les emplaceme
 						x = x + 5
 						if x <= longueur then
 								plan[temp] = {}
-								plan[temp][1] = x
-								plan[temp][2] = z
+								plan[temp][1] = x*factorX
+								plan[temp][2] = z*factorZ
 								temp = temp + 1
 						end
 				end
@@ -192,67 +210,74 @@ function calcPlan()                                     -- calcule les emplaceme
 		end
 end
  
-function deplacement(r,s)                               -- pour aller à des coordonnées précises
- 
- 		local l_initial_orientation
-		local nbX
-		local nbZ
-	   
-		l_initial_orientation = getOrientation()
+function deplacement(x, y, z, dir)                               -- pour aller à des coordonnées précises
+	if dir and (tonumber(dir) < 0 or tonumber(dir) >= 4) then
+		dir = 0
+	end
 
--- On commence par se déplacer en x
-	   
-		r = tonumber(r)
-		s = tonumber(s)
-	   
-		if r > xPosition then
-				nbX = r - xPosition
-				setOrientation(longueur_dir)
-		elseif r < xPosition then
-				nbX = xPosition - r
-				setOrientation(minus_longueur_dir)
-		end
-	   
-		if r ~= xPosition then
-				while nbX > 0 do
-						if not turtle.forward() then
-								check_turtle_full()
-								turtle.dig() -- ici, on n'a pas réussi à avancer, donc on creuse devant soit pour dégager le passage
-								turtle.forward()
-						end
-						if getOrientation() == longueur_dir then xPosition = xPosition + 1 else xPosition = xPosition - 1 end
-						verifFuel()
-						nbX = nbX - 1
-				end
-		end
+	print("déplacement vers "..x..","..y..","..z.." !")
+
+	turtle.fMoveTo(x, y, z, iDirtosDir[dir], "y", "x", "z")
  
--- Ensuite on fait le déplacement en z
+--  		local l_initial_orientation
+-- 		local nbX
+-- 		local nbZ
 	   
-		if s > zPosition then
-				nbZ = s - zPosition
+-- 		l_initial_orientation = getOrientation()
+
+-- -- On commence par se déplacer en x
+	   
+-- 		r = tonumber(r)
+-- 		s = tonumber(s)
+	   
+-- 		if r > xPosition then
+-- 				nbX = r - xPosition
+-- 				setOrientation(longueur_dir)
+-- 		elseif r < xPosition then
+-- 				nbX = xPosition - r
+-- 				setOrientation(minus_longueur_dir)
+-- 		end
+	   
+-- 		if r ~= xPosition then
+-- 				while nbX > 0 do
+-- 						if not turtle.forward() then
+-- 								check_turtle_full()
+-- 								turtle.dig() -- ici, on n'a pas réussi à avancer, donc on creuse devant soit pour dégager le passage
+-- 								turtle.forward()
+-- 						end
+-- 						if getOrientation() == longueur_dir then xPosition = xPosition + 1 else xPosition = xPosition - 1 end
+-- 						verifFuel()
+-- 						nbX = nbX - 1
+-- 				end
+-- 		end
+ 
+-- -- Ensuite on fait le déplacement en z
+	   
+-- 		if s > zPosition then
+-- 				nbZ = s - zPosition
 			   
-				setOrientation(largeur_dir)
-		elseif s < zPosition then
-				nbZ = zPosition - s
+-- 				setOrientation(largeur_dir)
+-- 		elseif s < zPosition then
+-- 				nbZ = zPosition - s
 			   
-				setOrientation(minus_largeur_dir)
-		end
+-- 				setOrientation(minus_largeur_dir)
+-- 		end
 	   
-		if s ~= zPosition then
-				while nbZ > 0 do
-						if not turtle.forward() then
-								check_turtle_full()
-								turtle.dig() -- ici, on n'a pas réussi à avancer, donc on creuse devant soit pour dégager le passage
-								turtle.forward()
-						end
-						if getOrientation() == largeur_dir then zPosition = zPosition + 1 else zPosition = zPosition - 1 end
-						verifFuel()
-						nbZ = nbZ - 1
-				end
-		end
+-- 		if s ~= zPosition then
+-- 				while nbZ > 0 do
+-- 						if not turtle.forward() then
+-- 								check_turtle_full()
+-- 								turtle.dig() -- ici, on n'a pas réussi à avancer, donc on creuse devant soit pour dégager le passage
+-- 								turtle.forward()
+-- 						end
+-- 						if getOrientation() == largeur_dir then zPosition = zPosition + 1 else zPosition = zPosition - 1 end
+-- 						verifFuel()
+-- 						nbZ = nbZ - 1
+-- 				end
+-- 		end
 	   
-		--on se remet en direction "zéro"
-		setOrientation(l_initial_orientation)
+-- 		--on se remet en direction "zéro"
+-- 		setOrientation(l_initial_orientation)
  
 end
 
@@ -301,6 +326,9 @@ while turtle.detect() do
 end
 
 verifFuel(2)
+
+turtle.setCoordsWithGPS()
+turtle.setCoords(0, 0, 0, turtle.getDir())
 
 -- initialiser position
 getOrientation()
@@ -370,7 +398,7 @@ nextDirection()
 
 initial_orientation = getOrientation()
 
-calcPlan() -- on calcule les emplacements des puits de forage
+calcPlan(turtle.getDir(), nextDirection == turtleRight and "right" or "left") -- on calcule les emplacements des puits de forage
  
 local p, pmax = 1, #plan
  
@@ -388,9 +416,7 @@ while p <= pmax do
 		print("Deplacement puit "..p.."/"..pmax)
 
 
-		setOrientation(initial_orientation)
- 
-		deplacement(plan[p][1],plan[p][2]) -- puis on se déplace sur le puit à forer
+		deplacement(plan[p][1], 0, plan[p][2], initial_orientation) -- puis on se déplace sur le puit à forer
 
 		while turtleDown() do
 			print("En bas ! profondeur = "..profondeur)
@@ -404,13 +430,7 @@ while p <= pmax do
 
 		print("Impossible d'aller plus bas. En haut...")
 
-		while profondeur ~= 0 do
-			print("En haut ! profondeur = "..profondeur)
-			if turtle.detectUp() then turtle.digUp() end
-			turtle.up()
-			profondeur = profondeur-1
-			verifFuel()
-		end
+		deplacement(turtle.getX(), 0, turtle.getZ(), getOrientation(), "y", "x", "z")
 
 		print("Puit fini")
 
@@ -418,6 +438,6 @@ while p <= pmax do
 		p = p + 1
 end
  
-deplacement(0,0) -- retour au point de départ
+deplacement(0,0,0, initial_orientation) -- retour au point de départ
 
 empty_turtle()
