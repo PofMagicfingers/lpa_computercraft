@@ -90,7 +90,7 @@
 -- This is the default value if you don't pass a
 -- value to the script. There is a check down below
 -- to make sure the user entered values isn't > 254
-height = 255
+height = 250
 
 -- need to enable rednet first incase using locate
 rednet.open( "right" )
@@ -140,7 +140,7 @@ else
 		if tArgs[4] == nil then
 			height = tonumber(height)
 		else
-			if tonumber(tArgs[4]) > 254 then
+			if tonumber(tArgs[4]) > 250 then
 				height = tonumber(height)
 			else
 				height = tonumber(tArgs[4])

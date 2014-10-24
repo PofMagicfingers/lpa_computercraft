@@ -735,8 +735,6 @@ end
 function saveData()
 	local saveData = {zero_or(xPos), zero_or(yPos), zero_or(zPos), tostring(dir), turtle.getFuelLevel(), chunkSlot, dirMoving, os.getComputerLabel()}
 
-	debug("saving fuelLevel: "..turtle.getFuelLevel())
-
 	for n, sSide in ipairs(rs.getSides()) do
 		if peripheral.getType(sSide) == "modem" and peripheral.call(sSide, "isWireless") then
 			rednet.open(sSide)
@@ -759,8 +757,6 @@ function loadData()
 		f.close()
 
 		debug("Config found. Loading data...")
-
-		debug("fuelLevel:"..tostring(data[5]))
 
 		--Checks to make sure turtle didn't move or do anything wonky after reboot
 		if data[5] == turtle.getFuelLevel() then
